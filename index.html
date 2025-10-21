@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkSpace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'bg-main': '#0F172A', // Main background (slate-900)
+            'bg-card': '#1E293B', // Card/surface background (slate-800)
+            'primary-purple': '#8B5CF6', // Primary accent (violet-500)
+            'primary-hover': '#7C3AED', // Primary hover (violet-600)
+            'text-light': '#F8FAFC', // Main text (slate-50)
+            'text-muted': '#94A3B8', // Muted text (slate-400)
+            'border-subtle': '#334155', // Borders/dividers (slate-700)
+          },
+          borderRadius: {
+            'xl': '1rem',
+          },
+          boxShadow: {
+            'deep': '0 10px 30px rgba(0, 0, 0, 0.5)',
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-bg-main text-text-light font-sans min-h-screen" style="font-family: 'Poppins', sans-serif;">
+  
+  <style>
+    /* ---------------------------------
+       1. UNIFIED PRIMARY BUTTON STYLE
+       --------------------------------- */
+    .btn-primary {
+      background-image: linear-gradient(180deg, #8B5CF6, #7C3AED);
+      border: 1px solid #7C3AED;
+      color: #F8FAFC;
+    }
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+    /* ---------------------------------
+       2. OUTLINE BUTTON STYLE
+       --------------------------------- */
+    .btn-outline {
+      border: 2px solid #8B5CF6;
+      color: #8B5CF6;
+    }
+    .btn-outline:hover {
+      background-color: #8B5CF6;
+      color: #F8FAFC;
+    }
+    /* ---------------------------------
+       3. CHAT BUBBLE STYLES (Fixed to use direct CSS)
+       --------------------------------- */
+    .message {
+        max-width: 10rem; /* max-w-xs is 20rem, but using a fixed size for simple CSS */
+        padding: 0.75rem; /* p-3 */
+        border-radius: 1rem; /* rounded-xl */
+        font-size: 0.875rem; /* text-sm */
+        transition: all 300ms;
+    }
+    .message.user {
+        background-color: #8B5CF6; /* bg-primary-purple */
+        color: #F8FAFC; /* text-text-light */
+        align-self: flex-end; /* self-end */
+        border-bottom-right-radius: 0; /* rounded-br-none */
+    }
+    .message.bot {
+        background-color: #0F172A; /* bg-bg-main */
+        color: #F8FAFC; /* text-text-light */
+        align-self: flex-start; /* self-start */
+        border-top-left-radius: 0; /* rounded-tl-none */
+        border: 1px solid #334155; /* border border-border-subtle */
+    }
+  </style>
+  
+  <header class="sticky top-0 z-50 bg-bg-card shadow-deep border-b border-border-subtle p-4 text-center">
+    <h1 class="text-3xl font-bold text-primary-purple">💬 LinkSpace</h1>
+    <p class="text-sm text-text-muted">A Social App to connect people</p>
+  </header>
+
+  <main class="container mx-auto px-4 py-6 max-w-7xl">
+    <div class="lg:flex lg:space-x-8">
+      
+      <div class="lg:w-1/3 space-y-6 order-2"> 
+        
+        <section class="p-4 bg-bg-card rounded-xl shadow-deep border border-border-subtle">
+          <h2 class="text-xl font-semibold border-b border-border-subtle pb-2 mb-4 text-text-light">📸 Manage Posts</h2>
+          <input type="file" id="photoInput" class="w-full p-2 bg-bg-main text-text-light border border-border-subtle rounded-lg focus:ring-primary-purple focus:border-primary-purple mb-3">
+          <div class="space-y-2">
+            <button id="postBtn" class="btn-primary w-full text-text-light font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">Post Photo</button>
+            <div class="flex justify-between space-x-2">
+                <button id="undoBtn" class="btn-outline w-full text-text-light font-semibold py-2 px-4 rounded-lg transition duration-200">Undo Post</button>
+                <button id="redoBtn" class="btn-outline w-full text-text-light font-semibold py-2 px-4 rounded-lg transition duration-200">Redo Post</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="p-4 bg-bg-card rounded-xl shadow-deep border border-border-subtle">
+          <h2 class="text-xl font-semibold border-b border-border-subtle pb-2 mb-4 text-text-light">🔍 Friend Search (Trie)</h2>
+          <div class="flex items-center space-x-2">
+              <input type="text" id="searchFriend" placeholder="Start typing a name..." class="flex-grow p-2 bg-bg-main text-text-light border border-border-subtle rounded-lg focus:ring-primary-purple focus:border-primary-purple">
+              <button id="searchBtn" class="btn-primary p-2 text-text-light font-semibold rounded-lg shadow-md transition duration-200">Search</button>
+          </div>
+          <p id="searchResult" class="mt-3 font-semibold text-sm h-5"></p>
+        </section>
+        
+        <section class="p-4 bg-bg-card rounded-xl shadow-deep border border-border-subtle">
+          <h2 class="text-xl font-semibold border-b border-border-subtle pb-2 mb-4 text-text-light">🌐 Friend Recommendations</h2>
+          <p class="text-text-muted text-sm mb-3">Find suggested friends based on 2nd degree connections.</p>
+          
+          <div class="mb-4">
+              <label for="currentUserInput" class="block text-sm font-medium text-text-muted mb-1">Recommendations for:</label>
+              <input type="text" id="currentUserInput" placeholder="Enter your name (e.g., Taher)" class="w-full p-2 bg-bg-main text-text-light border border-border-subtle rounded-lg focus:ring-primary-purple focus:border-primary-purple">
+          </div>
+
+          <button id="recommendBtn" class="btn-primary w-full mb-3 text-text-light font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">Generate Suggestions</button>
+          <pre id="recommendDisplay" class="p-3 bg-bg-main border border-border-subtle rounded-lg text-sm overflow-x-auto text-text-muted"></pre>
+        </section>
+
+        <section class="chat-section p-4 bg-bg-card rounded-xl shadow-deep border border-border-subtle">
+          <h2 class="text-xl font-semibold border-b border-border-subtle pb-2 mb-4 text-text-light">💌 Chat Simulation</h2>
+          <div id="chatBox" class="chat-box h-56 bg-bg-main p-3 rounded-lg overflow-y-auto mb-3 border border-border-subtle flex flex-col space-y-2"></div>
+          <div class="flex space-x-2">
+              <input type="text" id="chatInput" placeholder="Type a message..." class="flex-grow p-2 bg-bg-main text-text-light border border-border-subtle rounded-lg focus:ring-primary-purple focus:border-primary-purple">
+              <button id="sendMsgBtn" class="btn-primary text-text-light font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">Send</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="lg:w-2/3 order-1 lg:mb-0 mb-6">
+        <section class="feed">
+            <h2 class="text-2xl font-bold mb-4 lg:block hidden text-text-light"> The Feed 🔥</h2>
+            <div id="feedContainer" class="space-y-8">
+                </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="text-center p-4 bg-bg-card border-t border-border-subtle text-text-muted text-xs">
+    <p>© 2025 LinkSpace | Built with 💻 by Taher & Parv</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
