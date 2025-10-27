@@ -144,7 +144,7 @@ class Trie {
 }
 
 const trie = new Trie();
-const friendNames = ["Ali", "Sara", "Taher", "Zoya", "Milan", "Riya", "Krish", "Alex", "Tara"];
+const friendNames = ["Ali", "Sara", "Taher", "Zoya", "Milan", "Riya", "Krish", "Alex", "Tara","Shubham","Parv","Megh"];
 friendNames.forEach(f => trie.insert(f));
 
 const searchFriendInput = document.getElementById("searchFriend");
@@ -271,4 +271,5 @@ function simulateReply(userMsg) {
         const randomReply = replies[Math.floor(Math.random() * replies.length)];
         displayMessage(randomReply, "bot");
     }, 1000);
+
 }
