@@ -171,6 +171,7 @@ searchFriendInput.oninput = () => {
 // ---------- GRAPH: BFS Recommendations ONLY ----------
 let graph = {
     "Taher": { "Parv": 1, "Ali": 1 },
+     "Parv": { "Megh": 1, "Shubham": 1 },
     "Shubham": { "Taher": 1, "megh": 1, "parv": 1 },
     "Alice": { "Taher": 1, "Kalp": 1 },
     "Neel": { "Jay": 1 },
@@ -273,3 +274,4 @@ function simulateReply(userMsg) {
     }, 1000);
 
 }
+
