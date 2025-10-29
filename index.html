@@ -10,57 +10,137 @@
       theme: {
         extend: {
           colors: {
-            'bg-main': '#0F172A',
-            'bg-card': '#1E293B',
-            'primary-purple': '#8B5CF6',
-            'primary-hover': '#7C3AED',
-            'text-light': '#F8FAFC',
+            'bg-main': '#121212',
+            'bg-card': '#1F2937',
+            'primary-purple': '#7C3AED',
+            'primary-hover': '#9D4EDD',
+            'text-light': '#E0E0E0',
             'text-muted': '#94A3B8',
-            'border-subtle': '#334155',
+            'border-subtle': '#374151',
           },
           borderRadius: { 'xl': '1rem' },
-          boxShadow: { 'deep': '0 10px 30px rgba(0, 0, 0, 0.5)' }
+          boxShadow: { 'deep': '0 8px 24px rgba(124, 62, 237, 0.35)' }
         }
       }
     }
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-</head>
-<body class="bg-bg-main text-text-light font-sans min-h-screen" style="font-family: 'Poppins', sans-serif;">
-
   <style>
-    .btn-primary {
-      background-image: linear-gradient(180deg, #8B5CF6, #7C3AED);
-      border: 1px solid #7C3AED;
-      color: #F8FAFC;
+    body {
+      background-color: #121212;
+      color: #E0E0E0;
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
     }
-    .btn-primary:hover { filter: brightness(1.05); }
-    .btn-outline {
-      border: 2px solid #8B5CF6;
-      color: #8B5CF6;
+    .bg-bg-main { background-color: #121212; }
+    .bg-bg-card { background-color: #1F2937; }
+    .border-border-subtle { border-color: #374151; }
+    .text-text-light { color: #E0E0E0; }
+    .text-text-muted { color: #94A3B8; }
+    .text-primary-purple { color: #7C3AED; }
+    .shadow-deep { box-shadow: 0 8px 24px rgba(124, 62, 237, 0.35); }
+    input, select, textarea {
+      background-color: #1F2937;
+      border: 1.5px solid #374151;
+      border-radius: 12px;
+      padding: 0.5rem 0.75rem;
+      color: #E0E0E0;
+      outline-offset: 0px;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
     }
-    .btn-outline:hover { background-color: #8B5CF6; color: #F8FAFC; }
-    .message {
-        max-width: 14rem;
-        padding: 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.875rem;
-        transition: all 300ms;
+    input:focus, select:focus, textarea:focus {
+      border-color: #9D4EDD;
+      box-shadow: 0 0 10px #9D4EDD66;
+    }
+    button.btn-primary {
+      background-image: linear-gradient(180deg, #9D4EDD, #7C3AED);
+      border: none;
+      box-shadow: 0 4px 14px #7C3AEDaa;
+      font-weight: 600;
+      border-radius: 14px;
+      padding: 0.6rem 1.2rem;
+      transition: transform 0.15s ease, box-shadow 0.25s ease;
+      cursor: pointer;
+    }
+    button.btn-primary:hover, button.btn-primary:focus {
+      filter: brightness(1.15);
+      box-shadow: 0 8px 22px #7C3AEDdd;
+      transform: translateY(-2px);
+    }
+    button.btn-outline {
+      background: transparent;
+      border: 2px solid #7C3AED;
+      color: #7C3AED;
+      border-radius: 14px;
+      padding: 0.55rem 1rem;
+      font-weight: 600;
+      transition: background-color 0.3s ease, color 0.3s ease, transform 0.15s ease;
+      cursor: pointer;
+    }
+    button.btn-outline:hover, button.btn-outline:focus {
+      background-color: #7C3AED;
+      color: #E0E0E0;
+      transform: translateY(-2px);
     }
     .message.user {
-        background-color: #8B5CF6;
-        color: #F8FAFC;
-        align-self: flex-end;
-        border-bottom-right-radius: 0;
+      background: linear-gradient(135deg, #7C3AEDcc, #9D4EDDcc);
+      border-radius: 18px 18px 0 18px;
+      color: #F3F3F3;
+      padding: 0.85rem 1.25rem;
+      font-size: 0.95rem;
+      align-self: flex-end;
+      box-shadow: 0 4px 12px #7C3AEDbb;
+      max-width: 70%;
+      word-wrap: break-word;
     }
     .message.bot {
-        background-color: #0F172A;
-        color: #F8FAFC;
-        align-self: flex-start;
-        border-top-left-radius: 0;
-        border: 1px solid #334155;
+      background: #1F2937;
+      border: 1.5px solid #374151;
+      border-radius: 18px 18px 18px 0;
+      padding: 0.85rem 1.25rem;
+      font-size: 0.95rem;
+      color: #C7D2FE;
+      align-self: flex-start;
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+    .comment-list {
+      max-height: 9rem;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #7C3AED #121212;
+      margin-bottom: 0.5rem;
+    }
+    .comment-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    .comment-list::-webkit-scrollbar-thumb {
+      background-color: #7C3AED;
+      border-radius: 12px;
+    }
+    .comment-area input {
+      padding: 0.5rem 1rem;
+      border-radius: 14px;
+    }
+    .comment-area button {
+      padding: 0.4rem 1rem;
+      border-radius: 14px;
+    }
+    #feedContainer > div {
+      transition: transform 0.3s ease, box-shadow 0.25s ease;
+    }
+    #feedContainer > div:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 32px rgba(124, 62, 237, 0.5);
+    }
+    footer {
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+      user-select: none;
     }
   </style>
+</head>
+<body class="bg-bg-main text-text-light font-sans min-h-screen">
 
   <header class="sticky top-0 z-50 bg-bg-card shadow-deep border-b border-border-subtle p-4 text-center">
     <h1 class="text-3xl font-bold text-primary-purple">💬 LinkSpace</h1>
@@ -98,7 +178,6 @@
                 <button id="redoBtn" class="btn-outline w-full text-text-light font-semibold py-2 px-4 rounded-lg transition duration-200">Redo Post</button>
             </div>
           </div>
-          <!-- FIFO note for comments -->
           <p class="text-text-muted text-sm mt-3">Note: Comments use a FIFO queue — oldest comments are removed automatically when the per-post queue limit is reached (default: 200).</p>
         </section>
 
@@ -113,7 +192,7 @@
 
         <section class="p-4 bg-bg-card rounded-xl shadow-deep border border-border-subtle">
           <h2 class="text-xl font-semibold border-b border-border-subtle pb-2 mb-4 text-text-light">🌐 Friend Recommendations</h2>
-          <p class="text-text-muted text-sm mb-3">Find suggested friends based on 2nd degree connections.</p>
+          <p class="text-text-muted text-sm mb-3">Find suggested friends based on 2nd degree connections (with mutual friends shown).</p>
 
           <div class="mb-4">
               <label for="currentUserInput" class="block text-sm font-medium text-text-muted mb-1">Recommendations for:</label>
@@ -128,7 +207,7 @@
           <h2 class="text-xl font-semibold border-b border-border-subtle pb-2 mb-4 text-text-light">💌 Chat Simulation</h2>
           <div id="chatBox" class="chat-box h-56 bg-bg-main p-3 rounded-lg overflow-y-auto mb-3 border border-border-subtle flex flex-col space-y-2"></div>
           <div class="flex space-x-2">
-              <input type="text" id="chatInput" placeholder="Type a message..." class="flex-grow p-2 bg-bg-main text-text-light border border-border-subtle rounded-lg focus:ring-primary-purple focus:border-primary-purple">
+              <input type="text" id="chatInput" placeholder="Type a message..." class="flex-grow p-2 bg-bg-main text-text-light border border-border-subtle rounded-lg focus:ring-primary-purple focus:border-primary-purple" autocomplete="off" spellcheck="false">
               <button id="sendMsgBtn" class="btn-primary text-text-light font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">Send</button>
           </div>
         </section>
@@ -147,7 +226,7 @@
     <p>© 2025 LinkSpace | Built with 💻 by Taher & Parv</p>
   </footer>
 
-  <!-- Link to external JS -->
+  <!-- JS -->
   <script src="script.js"></script>
 </body>
 </html>

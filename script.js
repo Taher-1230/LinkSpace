@@ -1,13 +1,8 @@
-/* =========================
-   script.js for LinkSpace
-   Adds: profile, remove-comment, hashing, trie, bfs, chat
-   ========================= */
+// =========================
+// script.js for LinkSpace
+// =========================
 
-/* -----------------------
-   HASH FUNCTION (simple)
-   ----------------------- */
 function generateHash(data) {
-    // simple deterministic string hash -> non-cryptographic (for IDs)
     let hash = 0;
     for (let i = 0; i < data.length; i++) {
         hash = (hash << 5) - hash + data.charCodeAt(i);
@@ -16,13 +11,9 @@ function generateHash(data) {
     return Math.abs(hash);
 }
 
-/* -----------------------
-   Comment Queue (FIFO)
-   ----------------------- */
 class CommentQueue {
     constructor(maxSize = 100) { this._q = []; this.maxSize = maxSize; }
     enqueue(item) {
-        // maintain FIFO and auto-drop oldest when full
         if (this._q.length >= this.maxSize) this.dequeue();
         this._q.push(item);
     }
@@ -32,29 +23,20 @@ class CommentQueue {
     size() { return this._q.length; }
 }
 
-/* -----------------------
-   POST CLASS
-   ----------------------- */
 class Post {
     constructor(url, author) {
         this.url = url;
         this.author = author;
         this.id = generateHash(url + Date.now());
-        this.comments = new CommentQueue(3); // FIFO queue for comments
+        this.comments = new CommentQueue(3);
     }
     addComment(comment) { this.comments.enqueue(comment); }
     removeCommentAt(idx) { this.comments.removeAt(idx); }
 }
 
-/* -----------------------
-   Stacks: posts + undo/redo
-   ----------------------- */
 let postStack = [];
 let redoPostStack = [];
 
-/* -----------------------
-   Active profile
-   ----------------------- */
 let activeUser = "Parv";
 const profileSelect = document.getElementById("profileSelect");
 const activeProfileSpan = document.getElementById("activeProfile");
@@ -64,21 +46,17 @@ if (profileSelect) {
     profileSelect.onchange = (e) => {
         activeUser = e.target.value;
         activeProfileSpan.textContent = `Active: ${activeUser}`;
+        // Re-render comments to update remove button
+        renderFeed();
     };
 }
 
-/* -----------------------
-   DOM references
-   ----------------------- */
 const photoInput = document.getElementById("photoInput");
 const postBtn = document.getElementById("postBtn");
 const undoBtn = document.getElementById("undoBtn");
 const redoBtn = document.getElementById("redoBtn");
 const feedContainer = document.getElementById("feedContainer");
 
-/* -----------------------
-   Post / Undo / Redo handlers
-   ----------------------- */
 postBtn.onclick = () => {
     const file = photoInput.files[0];
     if (!file) return alert("Choose an image to post.");
@@ -103,31 +81,24 @@ redoBtn.onclick = () => {
     renderFeed();
 };
 
-/* -----------------------
-   Render feed & comments
-   ----------------------- */
 function renderFeed() {
     feedContainer.innerHTML = "";
-    // newest first: traverse stack from end downwards
     for (let i = postStack.length - 1; i >= 0; i--) {
         const post = postStack[i];
 
         const postCard = document.createElement("div");
         postCard.className = "bg-bg-card rounded-xl shadow-deep border border-border-subtle p-4 max-w-3xl mx-auto";
 
-        // header (author + post id small)
         const header = document.createElement("div");
         header.className = "flex justify-between items-center mb-3";
         header.innerHTML = `<div class="font-semibold text-primary-purple">${post.author}</div>
                             <div class="text-xs text-text-muted">#${post.id}</div>`;
 
-        // image
         const img = document.createElement("img");
         img.src = post.url;
         img.alt = "User Post";
         img.className = "w-full h-auto max-h-96 object-contain bg-slate-900 rounded-md border border-border-subtle";
 
-        // comment area
         const commentArea = document.createElement("div");
         commentArea.className = "comment-area mt-3";
         commentArea.setAttribute("data-post-index", i);
@@ -145,12 +116,12 @@ function renderFeed() {
         postCard.appendChild(commentArea);
         feedContainer.appendChild(postCard);
 
-        // event: add comment
         document.getElementById(`addCommentBtn-${i}`).onclick = () => {
             const commentInput = document.getElementById(`commentInput-${i}`);
-            const comment = commentInput.value.trim();
-            if (!comment) return;
-            post.addComment(`${activeUser}: ${comment}`);
+            const commentText = commentInput.value.trim();
+            if (!commentText) return;
+            // Store comment as object {author, text}
+            post.addComment({ author: activeUser, text: commentText });
             commentInput.value = "";
             renderComments(i);
         };
@@ -164,33 +135,33 @@ function renderComments(postIndex) {
     const list = document.querySelector(`.comment-area[data-post-index="${postIndex}"] .comment-list`);
     list.innerHTML = "";
 
-    const commentsArray = post.comments.toArray(); // FIFO order (oldest first)
+    const commentsArray = post.comments.toArray();
     commentsArray.forEach((c, commentIndex) => {
         const commentDiv = document.createElement("div");
         commentDiv.className = "flex justify-between items-center bg-bg-main p-2 rounded-md mb-1";
 
         const text = document.createElement("p");
         text.className = "text-text-light text-sm";
-        text.textContent = `💬 ${c}`;
-
-        // Remove button (removes that comment from the queue)
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "text-red-400 hover:text-red-600 text-xs ml-3";
-        removeBtn.textContent = "Remove";
-        removeBtn.onclick = () => {
-            post.removeCommentAt(commentIndex);
-            renderComments(postIndex);
-        };
-
+        text.textContent = `💬 ${c.author}: ${c.text}`;
         commentDiv.appendChild(text);
-        commentDiv.appendChild(removeBtn);
+
+        // Remove button logic
+        if (activeUser === c.author || activeUser === post.author) {
+            const removeBtn = document.createElement("button");
+            removeBtn.className = "text-red-400 hover:text-red-600 text-xs ml-3";
+            removeBtn.textContent = "Remove";
+            removeBtn.onclick = () => {
+                post.removeCommentAt(commentIndex);
+                renderComments(postIndex);
+            };
+            commentDiv.appendChild(removeBtn);
+        }
+
         list.appendChild(commentDiv);
     });
 }
 
-/* -----------------------
-   TRIE: friend suggestions
-   ----------------------- */
+// ---------- Trie Friend Search ----------
 class TrieNode {
     constructor() { this.children = {}; this.isEndOfWord = false; }
 }
@@ -224,12 +195,9 @@ class Trie {
 const trie = new Trie();
 const friendNames = ["Ali", "Sara", "Taher", "Zoya", "Milan", "Riya", "Krish", "Alex", "Tara", "Shubham", "Parv", "Megh"];
 friendNames.forEach(n => trie.insert(n));
-
-// Hash map for O(1) existence checks
 const friendHash = {};
 friendNames.forEach(n => friendHash[n.toLowerCase()] = true);
 
-// friend search UI
 const searchFriendInput = document.getElementById("searchFriend");
 const searchBtn = document.getElementById("searchBtn");
 const searchResult = document.getElementById("searchResult");
@@ -256,9 +224,7 @@ if (searchBtn) {
     };
 }
 
-/* -----------------------
-   GRAPH + BFS recommendations
-   ----------------------- */
+// ---------- Friend Recommendations ----------
 let graph = {
     "Taher": { "Parv": 1, "Ali": 1 },
     "Parv": { "Megh": 1, "Shubham": 1 },
@@ -273,25 +239,31 @@ let graph = {
 function bfsForRecommendations(startNode) {
     const queue = [startNode];
     const visited = { [startNode]: 0 };
-    const recommendations = new Set();
-
+    const recommendations = new Map();
     while (queue.length) {
         const cur = queue.shift();
         const dist = visited[cur];
         if (dist >= 2) continue;
-
         if (!graph[cur]) continue;
         for (const nb in graph[cur]) {
             if (!(nb in visited)) {
                 visited[nb] = dist + 1;
                 queue.push(nb);
-                if (dist + 1 === 2) recommendations.add(nb);
+                if (dist + 1 === 2) {
+                    if (!recommendations.has(nb)) recommendations.set(nb, []);
+                    recommendations.get(nb).push(cur);
+                }
             }
         }
     }
-
     const direct = Object.keys(graph[startNode] || {});
-    return Array.from(recommendations).filter(u => u !== startNode && !direct.includes(u));
+    const recList = [];
+    for (const [name, mutuals] of recommendations.entries()) {
+        if (name !== startNode && !direct.includes(name)) {
+            recList.push({ name, mutuals: Array.from(new Set(mutuals)) });
+        }
+    }
+    return recList;
 }
 
 const recommendBtn = document.getElementById("recommendBtn");
@@ -306,16 +278,16 @@ if (recommendBtn) {
 
         const suggested = bfsForRecommendations(currentUser);
         if (suggested.length) {
-            recommendDisplay.innerHTML = `Recommended Friends for <strong class="text-primary-purple">${currentUser}</strong>:\n${suggested.join(' 🤝 ')}`;
+            recommendDisplay.innerHTML = suggested.map(s =>
+                `<span class="text-text-light">${s.name}</span> <span class="text-text-muted">(Mutual: ${s.mutuals.join(', ')})</span>`
+            ).join("<br>");
         } else {
             recommendDisplay.textContent = `No new recommendations for ${currentUser}.`;
         }
     };
 }
 
-/* -----------------------
-   Chat simulation
-   ----------------------- */
+// ---------- Chat Simulation ----------
 const chatBox = document.getElementById("chatBox");
 const sendMsgBtn = document.getElementById("sendMsgBtn");
 const chatInput = document.getElementById("chatInput");
@@ -328,16 +300,26 @@ function displayMessage(text, type) {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+// Make chat simulation and recommendations more personalized
 function simulateReply(userMsg) {
-    const replies = [
+    const recReplies = [
+        "You should connect with Sara, she's friends with both you and Krish!",
+        "Have you considered chatting with Megh? You have mutual friends.",
+        "Check out your recommendations for more people you might know.",
+        "Your circle's growing! Try sending a message to a recommended friend.",
+        "Connect, comment, share – make LinkSpace more vibrant!"
+    ];
+    const genericReplies = [
         "That’s interesting!",
         "Tell me more 😄",
         "Haha good one!",
         "I totally agree!",
         "Sounds cool!"
     ];
+
+    let replySet = (userMsg.toLowerCase().includes("recommend") || userMsg.toLowerCase().includes("friend")) ? recReplies : genericReplies;
     setTimeout(() => {
-        const r = replies[Math.floor(Math.random() * replies.length)];
+        const r = replySet[Math.floor(Math.random() * replySet.length)];
         displayMessage(r, "bot");
     }, 800);
 }
@@ -352,7 +334,5 @@ if (sendMsgBtn) {
     };
 }
 
-/* -----------------------
-   Initialization: render empty feed
-   ----------------------- */
+// ---------- Init ----------
 renderFeed();
